@@ -4,9 +4,8 @@ namespace EWZ\Bundle\RecaptchaBundle\Form\Type;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormViewInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Exception\FormException;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 /**
@@ -65,8 +64,12 @@ class RecaptchaType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildView(FormViewInterface $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options)
     {
+        $view->vars = array_replace($view->vars, array(
+            'ewz_recaptcha_enabled' => $this->enabled,
+        ));
+
         if (!$this->enabled) {
             return;
         }
@@ -77,11 +80,10 @@ class RecaptchaType extends AbstractType
             $server = self::RECAPTCHA_API_SERVER;
         }
 
-        $view->addVars(array(
-            'url_challenge'         => $server.'/challenge?k='.$this->publicKey,
-            'url_noscript'          => $server.'/noscript?k='.$this->publicKey,
-            'public_key'            => $this->publicKey,
-            'ewz_recaptcha_enabled' => $this->enabled,
+        $view->vars = array_replace($view->vars, array(
+            'url_challenge' => $server.'/challenge?k='.$this->publicKey,
+            'url_noscript'  => $server.'/noscript?k='.$this->publicKey,
+            'public_key'    => $this->publicKey,
         ));
     }
 
